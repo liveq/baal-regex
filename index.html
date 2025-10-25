@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="정규식 실시간 테스터. 매칭 결과 하이라이트, 그룹 캡처, 치환 기능 지원. 이메일, URL, 전화번호 등 자주 쓰는 패턴 예제 제공">
+    <meta name="keywords" content="정규식 테스트, Regex Tester, 정규표현식, 정규식 연습, Regular Expression, 정규식 검증, 정규식 예제">
+    <meta name="author" content="BAAL">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://regex.baal.co.kr/">
+    <meta property="og:title" content="정규식 테스터 - BAAL">
+    <meta property="og:description" content="정규식 실시간 테스터. 매칭 결과 하이라이트, 그룹 캡처, 치환 기능 지원">
+    <meta property="og:image" content="https://regex.baal.co.kr/og-image.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://regex.baal.co.kr/">
+    <meta property="twitter:title" content="정규식 테스터 - BAAL">
+    <meta property="twitter:description" content="정규식 실시간 테스터. 매칭 결과 하이라이트, 그룹 캡처, 치환 기능 지원">
+    <meta property="twitter:image" content="https://regex.baal.co.kr/og-image.png">
+
+    <title>정규식 테스터 - BAAL</title>
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2886185075996969"
+     crossorigin="anonymous"></script>
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
+
+    <!-- 공통 스타일 -->
+    <link rel="stylesheet" href="../_common/common.css">
+    <style>
+        .regex-input-section {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .input-group input[type="text"],
+        .input-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .input-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .flags-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .flag-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .flag-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .flag-item label {
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .patterns-section {
+            margin-bottom: 20px;
+        }
+
+        .pattern-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .pattern-btn {
+            padding: 10px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9em;
+        }
+
+        .pattern-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .result-section {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .match-count {
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .result-content {
+            background: var(--bg-primary);
+            padding: 15px;
+            border-radius: 8px;
+            min-height: 120px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .result-content mark {
+            background: #ffd700;
+            color: #000;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .error-message {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .groups-section {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .group-item {
+            background: var(--bg-primary);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .group-item h4 {
+            margin: 0 0 8px 0;
+            color: var(--primary-color);
+        }
+
+        .group-item ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .group-item li {
+            padding: 4px 0;
+        }
+
+        .group-item code {
+            background: var(--bg-secondary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .replace-section {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .flags-group {
+                flex-direction: column;
+            }
+
+            .pattern-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 다크모드 토글 -->
+    <div class="theme-toggle">
+        <button id="themeToggle" aria-label="다크모드 전환">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+        </button>
+    </div>
+
+    <!-- 언어 전환 -->
+    <div class="lang-toggle">
+        <button id="langToggle" data-lang="ko">
+            <span class="lang-ko">EN</span>
+            <span class="lang-en">KO</span>
+        </button>
+    </div>
+
+    <!-- 도구 버튼 -->
+    <div class="tools-toggle">
+        <button id="toolsToggle" data-ko="더 많은 도구" data-en="More Tools">
+            🧰
+        </button>
+    </div>
+
+    <!-- 메인 컨테이너 -->
+    <div class="container">
+        <header>
+            <h1 data-ko="정규식 테스터" data-en="Regex Tester">정규식 테스터</h1>
+            <p class="subtitle" data-ko="정규표현식을 실시간으로 테스트하세요" data-en="Test regular expressions in real-time">정규표현식을 실시간으로 테스트하세요</p>
+        </header>
+
+        <main>
+            <!-- 정규식 입력 -->
+            <div class="regex-input-section">
+                <div class="input-group">
+                    <label data-ko="정규식 (Regular Expression):" data-en="Regular Expression:">정규식 (Regular Expression):</label>
+                    <input type="text" id="regexInput" placeholder="\w+@\w+\.\w+" value="(\w+)@(\w+)\.\w+">
+                </div>
+
+                <div class="flags-group">
+                    <div class="flag-item">
+                        <input type="checkbox" id="flagG" checked>
+                        <label for="flagG">g <span data-ko="(전역)" data-en="(global)">(전역)</span></label>
+                    </div>
+                    <div class="flag-item">
+                        <input type="checkbox" id="flagI">
+                        <label for="flagI">i <span data-ko="(대소문자 무시)" data-en="(ignore case)">(대소문자 무시)</span></label>
+                    </div>
+                    <div class="flag-item">
+                        <input type="checkbox" id="flagM">
+                        <label for="flagM">m <span data-ko="(여러 줄)" data-en="(multiline)">(여러 줄)</span></label>
+                    </div>
+                    <div class="flag-item">
+                        <input type="checkbox" id="flagS">
+                        <label for="flagS">s <span data-ko="(dotAll)" data-en="(dotAll)">(dotAll)</span></label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 자주 쓰는 패턴 -->
+            <div class="patterns-section">
+                <h3 data-ko="자주 쓰는 패턴 예제" data-en="Common Patterns">자주 쓰는 패턴 예제</h3>
+                <div class="pattern-buttons">
+                    <button class="pattern-btn" onclick="loadPattern('email')" data-ko="이메일" data-en="Email">이메일</button>
+                    <button class="pattern-btn" onclick="loadPattern('url')" data-ko="URL" data-en="URL">URL</button>
+                    <button class="pattern-btn" onclick="loadPattern('phone')" data-ko="전화번호" data-en="Phone">전화번호</button>
+                    <button class="pattern-btn" onclick="loadPattern('date')" data-ko="날짜" data-en="Date">날짜</button>
+                    <button class="pattern-btn" onclick="loadPattern('ipv4')" data-ko="IPv4" data-en="IPv4">IPv4</button>
+                    <button class="pattern-btn" onclick="loadPattern('hexColor')" data-ko="HEX 색상" data-en="HEX Color">HEX 색상</button>
+                </div>
+            </div>
+
+            <!-- 테스트 문자열 -->
+            <div class="input-group">
+                <label data-ko="테스트 문자열:" data-en="Test String:">테스트 문자열:</label>
+                <textarea id="testInput" placeholder="test@example.com, hello@world.com">Contact us at john@example.com or jane@company.com for more information.</textarea>
+            </div>
+
+            <!-- 매칭 결과 -->
+            <div class="result-section">
+                <div class="result-header">
+                    <h3 data-ko="매칭 결과" data-en="Match Results">매칭 결과</h3>
+                    <span class="match-count" id="matchCount">0 <span data-ko="개 매치됨" data-en="matches">개 매치됨</span></span>
+                </div>
+                <div class="result-content" id="resultContent"></div>
+                <div id="errorMessage" class="error-message" style="display: none;"></div>
+            </div>
+
+            <!-- 캡처 그룹 -->
+            <div class="groups-section" id="groupsSection" style="display: none;">
+                <h3 data-ko="캡처 그룹" data-en="Capture Groups">캡처 그룹</h3>
+                <div id="groupsContent"></div>
+            </div>
+
+            <!-- 치환 기능 -->
+            <div class="replace-section">
+                <h3 data-ko="치환 (Replace)" data-en="Replace">치환 (Replace)</h3>
+                <div class="input-group">
+                    <label data-ko="치환 문자열 ($1, $2로 그룹 참조):" data-en="Replacement ($1, $2 for group reference):">치환 문자열 ($1, $2로 그룹 참조):</label>
+                    <input type="text" id="replaceInput" placeholder="$1 [AT] $2 [DOT] com" value="$1 [AT] $2 [DOT] com">
+                </div>
+                <div class="result-section">
+                    <h4 data-ko="치환 결과:" data-en="Replace Result:">치환 결과:</h4>
+                    <div class="result-content" id="replaceResult"></div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <p class="footer-brand">
+                    Made by <a href="https://baal.co.kr" target="_blank">BAAL</a>
+                </p>
+                <p class="footer-contact">
+                    <a href="mailto:baal.contract@gmail.com">baal.contract@gmail.com</a>
+                </p>
+                <p class="footer-links">
+                    <a href="https://baal.co.kr/privacy" target="_blank" data-ko="개인정보처리방침" data-en="Privacy Policy">개인정보처리방침</a>
+                    <span class="separator">|</span>
+                    <a href="https://baal.co.kr/terms" target="_blank" data-ko="이용약관" data-en="Terms of Service">이용약관</a>
+                </p>
+                <p class="footer-copyright">&copy; 2025 BAAL. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 공통 스크립트 -->
+    <script src="../_common/common.js"></script>
+    <script>
+        // Common patterns
+        const commonPatterns = {
+            email: {
+                pattern: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}',
+                flags: 'gi',
+                test: 'test@example.com, john.doe@company.co.kr'
+            },
+            url: {
+                pattern: 'https?://[\\w.-]+\\.[a-zA-Z]{2,}(/[\\w.-]*)*',
+                flags: 'gi',
+                test: 'Visit https://example.com or http://test.co.kr'
+            },
+            phone: {
+                pattern: '0\\d{1,2}-\\d{3,4}-\\d{4}',
+                flags: 'g',
+                test: '010-1234-5678, 02-123-4567'
+            },
+            date: {
+                pattern: '\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])',
+                flags: 'g',
+                test: '2025-10-26, 2024-01-01'
+            },
+            ipv4: {
+                pattern: '\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b',
+                flags: 'g',
+                test: '192.168.0.1, 127.0.0.1'
+            },
+            hexColor: {
+                pattern: '#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})',
+                flags: 'gi',
+                test: '#ff0000, #abc, #123456'
+            }
+        };
+
+        // Load pattern
+        function loadPattern(type) {
+            const pattern = commonPatterns[type];
+            document.getElementById('regexInput').value = pattern.pattern;
+            document.getElementById('testInput').value = pattern.test;
+
+            // Set flags
+            document.getElementById('flagG').checked = pattern.flags.includes('g');
+            document.getElementById('flagI').checked = pattern.flags.includes('i');
+            document.getElementById('flagM').checked = pattern.flags.includes('m');
+            document.getElementById('flagS').checked = pattern.flags.includes('s');
+
+            testRegex();
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Test regex
+        function testRegex() {
+            const pattern = document.getElementById('regexInput').value;
+            const text = document.getElementById('testInput').value;
+            const errorEl = document.getElementById('errorMessage');
+
+            // Get flags
+            let flags = '';
+            if (document.getElementById('flagG').checked) flags += 'g';
+            if (document.getElementById('flagI').checked) flags += 'i';
+            if (document.getElementById('flagM').checked) flags += 'm';
+            if (document.getElementById('flagS').checked) flags += 's';
+
+            try {
+                const regex = new RegExp(pattern, flags);
+                const matches = [];
+                let match;
+                let iterations = 0;
+                const MAX_ITERATIONS = 10000;
+
+                while ((match = regex.exec(text)) !== null) {
+                    matches.push({
+                        match: match[0],
+                        index: match.index,
+                        groups: match.slice(1)
+                    });
+
+                    if (++iterations > MAX_ITERATIONS) {
+                        throw new Error('Too many matches (>10000). Please simplify your regex.');
+                    }
+
+                    if (match.index === regex.lastIndex) {
+                        regex.lastIndex++;
+                    }
+
+                    if (!flags.includes('g')) break;
+                }
+
+                // Display results
+                displayResults(text, matches);
+                displayGroups(matches);
+                performReplace(pattern, flags, text);
+
+                errorEl.style.display = 'none';
+            } catch (error) {
+                errorEl.textContent = error.message;
+                errorEl.style.display = 'block';
+                document.getElementById('matchCount').textContent = '0 ' + (document.body.getAttribute('data-lang') === 'ko' ? '개 매치됨' : 'matches');
+                document.getElementById('resultContent').innerHTML = '';
+                document.getElementById('groupsSection').style.display = 'none';
+            }
+        }
+
+        // Display results
+        function displayResults(text, matches) {
+            const matchCount = document.getElementById('matchCount');
+            const resultContent = document.getElementById('resultContent');
+            const lang = document.body.getAttribute('data-lang') || 'ko';
+
+            matchCount.textContent = matches.length + ' ' + (lang === 'ko' ? '개 매치됨' : 'matches');
+
+            if (matches.length === 0) {
+                resultContent.innerHTML = '<p style="color: #888;">' + (lang === 'ko' ? '매칭되는 텍스트가 없습니다.' : 'No matches found.') + '</p>';
+                return;
+            }
+
+            // Highlight matches
+            let highlighted = '';
+            let lastIndex = 0;
+
+            matches.sort((a, b) => a.index - b.index);
+
+            matches.forEach((match, i) => {
+                highlighted += escapeHtml(text.substring(lastIndex, match.index));
+                highlighted += `<mark>${escapeHtml(match.match)}</mark>`;
+                lastIndex = match.index + match.match.length;
+            });
+
+            highlighted += escapeHtml(text.substring(lastIndex));
+            resultContent.innerHTML = highlighted;
+        }
+
+        // Display capture groups
+        function displayGroups(matches) {
+            const groupsSection = document.getElementById('groupsSection');
+            const groupsContent = document.getElementById('groupsContent');
+
+            if (matches.length === 0 || !matches.some(m => m.groups.length > 0)) {
+                groupsSection.style.display = 'none';
+                return;
+            }
+
+            groupsSection.style.display = 'block';
+            groupsContent.innerHTML = matches.map((m, i) => {
+                if (m.groups.length === 0) return '';
+
+                return `
+                    <div class="group-item">
+                        <h4>Match ${i + 1}: ${escapeHtml(m.match)}</h4>
+                        <ul>
+                            ${m.groups.map((g, j) =>
+                                g !== undefined ? `<li><code>$${j + 1}</code>: ${escapeHtml(g)}</li>` : ''
+                            ).join('')}
+                        </ul>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Perform replace
+        function performReplace(pattern, flags, text) {
+            const replacement = document.getElementById('replaceInput').value;
+            const replaceResult = document.getElementById('replaceResult');
+
+            if (!replacement) {
+                replaceResult.innerHTML = '';
+                return;
+            }
+
+            try {
+                const regex = new RegExp(pattern, flags);
+                const result = text.replace(regex, replacement);
+                replaceResult.textContent = result;
+            } catch (error) {
+                replaceResult.innerHTML = '<p style="color: #ef4444;">' + error.message + '</p>';
+            }
+        }
+
+        // Debounce
+        let debounceTimer;
+        function debounce(func, delay) {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(func, delay);
+        }
+
+        // Event listeners
+        document.getElementById('regexInput').addEventListener('input', () => debounce(testRegex, 300));
+        document.getElementById('testInput').addEventListener('input', () => debounce(testRegex, 300));
+        document.getElementById('replaceInput').addEventListener('input', () => debounce(testRegex, 300));
+
+        document.querySelectorAll('.flags-group input').forEach(checkbox => {
+            checkbox.addEventListener('change', testRegex);
+        });
+
+        // Initialize
+        testRegex();
+    </script>
+</body>
+</html>
